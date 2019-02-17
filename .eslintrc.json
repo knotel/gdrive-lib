@@ -1,0 +1,21 @@
+{
+  "extends":[
+    "standard"
+  ],
+  "plugins":[
+    "standard"
+  ],
+  "rules": {
+    "comma-dangle": [
+      "error",
+      "always-multiline"
+    ],
+    "prefer-const": [
+      "error",
+      {
+        "destructuring": "any",
+        "ignoreReadBeforeAssign": false
+      }
+    ]
+  }
+}
