@@ -1,12 +1,11 @@
 'use strict'
 
 const { google } = require('googleapis')
-const { log } = require('../utils/browser')
+const { log } = require('./log')
 require('dotenv').config()
 
 class GDrive {
   constructor() {
-    this.auth = await authorize()
     this.driveOptions = {
       pageSize: 200,
       corpora: 'teamDrive',
@@ -24,9 +23,16 @@ class GDrive {
     ]
   }
 
-  authorize() {
+  /**
+   * Initializes the Google Drive connection by creating the authorization token.
+   *
+   * @since 0.0.1
+   * 
+   */
+  init() {
     return new Promise((resolve, reject) => {
       const auth = new google.auth.JWT(...this.authCredentials)
+      this.auth = auth
       auth.authorize(function (err, tokens) {
         if (err) reject(err)
         else resolve(auth)
@@ -67,19 +73,19 @@ class GDrive {
     })
   }
 
-  create(options, directorySchema) {
-    const { rootFolderId } = options
-    return new Promise((resolve, reject) => {
-      // validate JSON
-      let directory
-      try { directory = JSON.parse(directorySchema) }
-      catch (err) { reject(err) }
-      // then start build
-      const drive = google.drive({ version: 'v3', auth: this.auth })
-      await buildDirectory(drive, directory, rootFolderId)
-      resolve(directory)
-    })
-  }
+  // create(options, directorySchema) {
+  //   const { rootFolderId } = options
+  //   return new Promise((resolve, reject) => {
+  //     // validate JSON
+  //     let directory
+  //     try { directory = JSON.parse(directorySchema) }
+  //     catch (err) { reject(err) }
+  //     // then start build
+  //     const drive = google.drive({ version: 'v3', auth: this.auth })
+  //     await _buildDirectory(drive, directory, rootFolderId)
+  //     resolve(directory)
+  //   })
+  // }
 
   update() {}
 

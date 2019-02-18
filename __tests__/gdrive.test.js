@@ -2,14 +2,13 @@
 // import { google } from 'googleapis'
 import GDrive from '../gdrive'
 
-
-
 test('the data is peanut butter', () => {
-  let gdrive = new GDrive({
-    rootFolderId: '1RlH4Cx5ElvGsN4j6tbERNImwlxfhbHEU'
-  })
+  let gdrive = new GDrive()
+  gdrive.init()
 
-  return gdrive.getAll().then(data => {
+  return gdrive.getAll({
+    rootFolderId: '1RlH4Cx5ElvGsN4j6tbERNImwlxfhbHEU'
+  }).then(data => {
     expect(data).toEqual(
       [{
         "id": "1_eMVGj9_oM-eJ9vgW-UC0RMhOcwugJBI", 

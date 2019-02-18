@@ -21,3 +21,16 @@ Library for common Google Drive functionality.
 ## Supported MIME Types
 
 * https://developers.google.com/drive/api/v3/mime-types
+
+
+## Getting Started
+
+```
+let gdrive = new GDrive()
+gdrive.init() // set auth within internal state of gdrive instance
+gdrive.getAll({
+  rootFolderId: 'XXX'
+}).then((files) =>
+  console.log(files)
+)
+```
