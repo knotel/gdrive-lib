@@ -16,3 +16,8 @@ Library for common Google Drive functionality.
 # Config Options
 
 1. Specify credentials.json.
+
+
+## Supported MIME Types
+
+* https://developers.google.com/drive/api/v3/mime-types
