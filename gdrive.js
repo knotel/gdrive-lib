@@ -32,7 +32,7 @@ class GDrive {
   init () {
     return new Promise((resolve, reject) => {
       const auth = new google.auth.JWT(...this.authCredentials)
-      this.drive = google.drive({ version: 'v3', auth: this.auth })
+      this.drive = google.drive({ version: 'v3', auth })
       auth.authorize(function (err, tokens) {
         if (err) reject(err)
         else resolve(auth)
