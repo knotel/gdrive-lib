@@ -32,7 +32,7 @@ class GDrive {
   init () {
     return new Promise((resolve, reject) => {
       const auth = new google.auth.JWT(...this.authCredentials)
-      this.auth = auth
+      this.drive = google.drive({ version: 'v3', auth: this.auth })
       auth.authorize(function (err, tokens) {
         if (err) reject(err)
         else resolve(auth)
@@ -42,10 +42,11 @@ class GDrive {
 
   get (fileId) {
     return new Promise((resolve, reject) => {
-      const drive = google.drive({ version: 'v3', auth: this.auth })
-      drive.files.get({ fileId: fileId }, (err, res) => {
-        if (err) reject(err)
-        else resolve(res.data)
+      this.drive.files.get({ fileId: fileId })
+      .then((res) => {
+        resolve(res.data)
+      }, (err) => {
+        reject(err)
       })
     })
   }
@@ -62,13 +63,13 @@ class GDrive {
   getAll (options) {
     const { rootFolderId } = options
     return new Promise((resolve, reject) => {
-      const drive = google.drive({ version: 'v3', auth: this.auth })
-      drive.files.list({
+      this.drive.files.list({
         ...this.driveOptions,
         q: `'${rootFolderId}' in parents and trashed = false`,
-      }, (err, res) => {
-        if (err) reject(err)
-        else resolve(res.data.files)
+      }).then((res) => {
+        resolve(res.data.files)
+      }, (err) => {
+        reject(err)
       })
     })
   }
@@ -76,9 +77,8 @@ class GDrive {
   upsert (options, directorySchema) {
     const { rootFolderId } = options
     return new Promise((resolve, reject) => {
-      const drive = google.drive({ version: 'v3', auth: this.auth })
       return (async () => {
-        await this._buildDirectory(drive, directorySchema, rootFolderId)
+        await this._buildDirectory(this.drive, directorySchema, rootFolderId)
         resolve(directorySchema)
       })()
     })
@@ -93,21 +93,21 @@ class GDrive {
       drive.files.list({
         ...this.driveOptions,
         q: `'${parentFolderId}' in parents and trashed = false`,
-      }, (err, res) => {
-        if (err) { reject(err) }
+      }).then((res) => {
         const file = res.data.files.find((file) => file.name === fileMetaData.resource['name'])
         if (!file) {
-          drive.files.create(fileMetaData, (err, res) => {
-            if (err) reject(err)
-            else {
-              log(`Created ${fileMetaData.resource['mimeType']}: ${fileMetaData.resource['name']}`)
-              resolve(res.data)
-            }
+          drive.files.create(fileMetaData).then((res) => {
+            log(`Created ${fileMetaData.resource['mimeType']}: ${fileMetaData.resource['name']}`)
+            resolve(res.data)
+          }, (err) => {
+            reject(err)
           })
         } else {
           log(`File already exists! ${fileMetaData.resource['mimeType']}: ${fileMetaData.resource['name']}`)
           resolve(file)
         }
+      }, (err) => {
+        reject(err)
       })
     })
   }
