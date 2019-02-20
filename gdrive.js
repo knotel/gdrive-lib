@@ -51,15 +51,18 @@ class GDrive {
   }
 
   /**
-   * Returns file by ID. If folder, will return children up to pageSize limit.
+   * Fetch all files from Google Drive folder specified. Can recursively traverse folder if specified in `recursive` option.
    *
    * @since 0.0.1
    * @param {Object} options Specific configurations for how to get files from Google Drive.
-   * @returns {Array} Returns direct descendents of root folder specified with names, MIME Types and select metadata.
+   * @returns {Array} Returns descendents of root folder in either a flat object array or nested object array.
    *
    */
   getAll({ rootFolderId, recursive = false } = {}) {
-    let fileStructure = []
+    let fileStructure = {
+      id: rootFolderId,
+      children: []
+    }
     return new Promise((resolve, reject) => {
       return (async () => {
         await this._getDirectory(fileStructure, rootFolderId, recursive)
@@ -69,20 +72,20 @@ class GDrive {
   }
 
   async _getDirectory(parentFolder, parentFolderId, recursive = false) {
-    this._fetchGoogleFiles(parentFolderId).then((files) => {
-      parentFolder.children = files // push onto file structure
-      if (recursive) {
-        let i = 0
-        while (i < files.length) {
-          const file = files[i]
-          if (file.mimeType == 'application/vnd.google-apps.folder') await this._getDirectory(file, rootFolderId, recursive)
-          i++
-        }
+    const files = await this._fetchGoogleFiles(parentFolderId)
+    parentFolder.children = files // push onto file structure
+    if (recursive) {
+      console.log("IM RECURTHIVE")
+      let i = 0
+      while (i < files.length) {
+        const file = files[i]
+        if (file.mimeType == 'application/vnd.google-apps.folder') await this._getDirectory(file, rootFolderId, recursive)
+        i++
       }
-    })
+    }
   }
 
-  _fetchGoogleFiles(parentFolderId) {
+  async _fetchGoogleFiles(parentFolderId) {
     return new Promise((resolve, reject) => {
       this.drive.files.list({
         ...this.driveOptions,
@@ -95,6 +98,15 @@ class GDrive {
     })
   }
 
+  /**
+   * Recursively upsert folders by ID or name specified in schema.
+   *
+   * @since 0.0.1
+   * @param {Object} options Specific configurations for how to get files from Google Drive.
+   * @param {Array} directorySchema Nested structure of objects and object arrays. All files should have an ID or name.
+   * @returns {Array} Returns directorySchema in the same format, except missing names and IDs are returned where files are newly created.
+   *
+   */
   upsert({ rootFolderId }, directorySchema) {
     return new Promise((resolve, reject) => {
       return (async () => {
@@ -111,6 +123,7 @@ class GDrive {
       const file = await this._upsertFile(parentFolderId, fileStruct)
       // TODO: check for error
       fileStruct.id = file.id
+      fileStruct.name = file.name
       if (fileStruct.children) await this._upsertDirectory(fileStruct.children, fileStruct.id)
       i++
     }
@@ -118,7 +131,6 @@ class GDrive {
 
   _upsertFile(parentFolderId, fileStruct) {
     return new Promise((resolve, reject) => {
-      const fileMetaData = this._upsertPayload(fileStruct, parentFolderId)
       this._fetchGoogleFiles(parentFolderId, fileStruct).then((files) => {
         const file = files.find((file) => file.id === fileStruct.id || file.name === fileStruct.name)
         if (!file) {

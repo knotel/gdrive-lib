@@ -9,6 +9,7 @@
   "private": true,
   "scripts": {
     "build": "npx babel gdrive.js --out-file dist/gdrive.js",
+    "sandbox": "node sandbox.js",
     "prepublish": "npm run test:lint && npm run test:mocha && npm run test:vuln",
     "test": "snyk test",
     "test:lint": "eslint --ext .js .",
