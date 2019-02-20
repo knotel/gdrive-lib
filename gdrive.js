@@ -39,14 +39,14 @@ class GDrive {
     })
   }
 
-  get(fileId) {
+  get (fileId) {
     return new Promise((resolve, reject) => {
       this.drive.files.get({ fileId: fileId })
-      .then((res) => {
-        resolve(res.data)
-      }, (err) => {
-        reject(err)
-      })
+        .then((res) => {
+          resolve(res.data)
+        }, (err) => {
+          reject(err)
+        })
     })
   }
 
@@ -58,10 +58,10 @@ class GDrive {
    * @returns {Array} Returns descendents of root folder in either a flat object array or nested object array.
    *
    */
-  getAll({ rootFolderId, recursive = false } = {}) {
-    let fileStructure = {
+  getAll ({ rootFolderId, recursive = false } = {}) {
+    const fileStructure = {
       id: rootFolderId,
-      children: []
+      children: [],
     }
     return new Promise((resolve, reject) => {
       return (async () => {
@@ -71,21 +71,21 @@ class GDrive {
     })
   }
 
-  async _getDirectory(parentFolder, parentFolderId, recursive = false) {
+  async _getDirectory (parentFolder, parentFolderId, recursive = false) {
     const files = await this._fetchGoogleFiles(parentFolderId)
+    if (files.length <= 0) return // base case
     parentFolder.children = files // push onto file structure
     if (recursive) {
-      console.log("IM RECURTHIVE")
       let i = 0
       while (i < files.length) {
         const file = files[i]
-        if (file.mimeType == 'application/vnd.google-apps.folder') await this._getDirectory(file, rootFolderId, recursive)
+        if (file.mimeType === 'application/vnd.google-apps.folder') await this._getDirectory(file, file.id, recursive)
         i++
       }
     }
   }
 
-  async _fetchGoogleFiles(parentFolderId) {
+  async _fetchGoogleFiles (parentFolderId) {
     return new Promise((resolve, reject) => {
       this.drive.files.list({
         ...this.driveOptions,
@@ -107,7 +107,7 @@ class GDrive {
    * @returns {Array} Returns directorySchema in the same format, except missing names and IDs are returned where files are newly created.
    *
    */
-  upsert({ rootFolderId }, directorySchema) {
+  upsert ({ rootFolderId }, directorySchema) {
     return new Promise((resolve, reject) => {
       return (async () => {
         await this._upsertDirectory(directorySchema, rootFolderId)
@@ -116,7 +116,7 @@ class GDrive {
     })
   }
 
-  async _upsertDirectory(fileStructArray, parentFolderId) {
+  async _upsertDirectory (fileStructArray, parentFolderId) {
     let i = 0
     while (i < fileStructArray.length) {
       const fileStruct = fileStructArray[i]
@@ -129,7 +129,7 @@ class GDrive {
     }
   }
 
-  _upsertFile(parentFolderId, fileStruct) {
+  _upsertFile (parentFolderId, fileStruct) {
     return new Promise((resolve, reject) => {
       this._fetchGoogleFiles(parentFolderId, fileStruct).then((files) => {
         const file = files.find((file) => file.id === fileStruct.id || file.name === fileStruct.name)
@@ -149,7 +149,7 @@ class GDrive {
     })
   }
 
-  _createGoogleFile(parentFolderId, fileStruct) {
+  _createGoogleFile (parentFolderId, fileStruct) {
     const fileMetaData = this._googleFileMetaData(fileStruct, parentFolderId)
     return new Promise((resolve, reject) => {
       this.drive.files.create(fileMetaData).then((res) => {

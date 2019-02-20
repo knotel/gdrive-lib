@@ -2,8 +2,8 @@ import GDrive from '../gdrive'
 // import { describe, it } from 'mocha'
 import chai, { expect } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import sinon from 'sinon'
-import { google } from 'googleapis'
+// import sinon from 'sinon'
+// import { google } from 'googleapis'
 chai.use(chaiAsPromised)
 
 const gdrive = new GDrive()
@@ -26,7 +26,7 @@ describe('GDrive', () => {
         name: 'Base Folder',
         mimeType: 'application/vnd.google-apps.folder',
         trashed: false,
-        parents: [ '1RlH4Cx5ElvGsN4j6tbERNImwlxfhbHEU' ]
+        parents: [ '1RlH4Cx5ElvGsN4j6tbERNImwlxfhbHEU' ],
       }])
     })
 
