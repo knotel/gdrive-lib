@@ -1,6 +1,11 @@
 # gdrive-lib
 Library for common Google Drive functionality.
 
+# Get Started
+
+```
+yarn add knotel/gdrive-lib --save
+```
 
 # Google Folders
 
