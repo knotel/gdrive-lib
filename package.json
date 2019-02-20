@@ -1,14 +1,14 @@
 {
-  "name": "gdrive-lib",
+  "name": "@knotel/gdrive-lib",
   "description": "Library for building/fetching Google Team Drive metadata in nested JSON format",
   "version": "0.0.1",
   "main": "dist/gdrive.js",
   "repository": "git@github.com:knotel/gdrive-lib.git",
   "author": "cfaruki@knotel.com",
   "license": "MIT",
-  "private": true,
   "scripts": {
     "build": "npx babel gdrive.js --out-file dist/gdrive.js",
+    "sandbox": "node sandbox.js",
     "prepublish": "npm run test:lint && npm run test:mocha && npm run test:vuln",
     "test": "snyk test",
     "test:lint": "eslint --ext .js .",

@@ -2,8 +2,8 @@ import GDrive from '../gdrive'
 // import { describe, it } from 'mocha'
 import chai, { expect } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
-import sinon from 'sinon'
-import { google } from 'googleapis'
+// import sinon from 'sinon'
+// import { google } from 'googleapis'
 chai.use(chaiAsPromised)
 
 const gdrive = new GDrive()
@@ -16,7 +16,7 @@ const gdrive = new GDrive()
 gdrive.init()
 
 describe('GDrive', () => {
-  describe('#getAll()', () => {
+  xdescribe('#getAll()', () => {
     it('should return an array of 1 file', () => {
       const promise = gdrive.getAll({
         rootFolderId: '1RlH4Cx5ElvGsN4j6tbERNImwlxfhbHEU',
@@ -26,7 +26,7 @@ describe('GDrive', () => {
         name: 'Base Folder',
         mimeType: 'application/vnd.google-apps.folder',
         trashed: false,
-        parents: [ '1RlH4Cx5ElvGsN4j6tbERNImwlxfhbHEU' ]
+        parents: [ '1RlH4Cx5ElvGsN4j6tbERNImwlxfhbHEU' ],
       }])
     })
 
