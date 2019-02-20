@@ -141,4 +141,4 @@ class GDrive {
   }
 }
 
-export default GDrive
+module.exports = GDrive
