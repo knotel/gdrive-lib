@@ -16,19 +16,19 @@ const gdrive = new GDrive()
 gdrive.init()
 
 describe('GDrive', () => {
-  describe('#getAll()', () => {
-    // it('should return an array of 1 file', () => {
-    //   const promise = gdrive.getAll({
-    //     rootFolderId: '1RlH4Cx5ElvGsN4j6tbERNImwlxfhbHEU',
-    //   })
-    //   return expect(promise).to.eventually.deep.equal([{
-    //     id: '1_eMVGj9_oM-eJ9vgW-UC0RMhOcwugJBI',
-    //     name: 'Base Folder',
-    //     mimeType: 'application/vnd.google-apps.folder',
-    //     trashed: false,
-    //     parents: [ '1RlH4Cx5ElvGsN4j6tbERNImwlxfhbHEU' ],
-    //   }])
-    // })
+  xdescribe('#getAll()', () => {
+    it('should return an array of 1 file', () => {
+      const promise = gdrive.getAll({
+        rootFolderId: '1RlH4Cx5ElvGsN4j6tbERNImwlxfhbHEU',
+      })
+      return expect(promise).to.eventually.deep.equal([{
+        id: '1_eMVGj9_oM-eJ9vgW-UC0RMhOcwugJBI',
+        name: 'Base Folder',
+        mimeType: 'application/vnd.google-apps.folder',
+        trashed: false,
+        parents: [ '1RlH4Cx5ElvGsN4j6tbERNImwlxfhbHEU' ],
+      }])
+    })
 
     // it('should return an array of 2 files', () => {
     //   const promise = gdrive.getAll({
