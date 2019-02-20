@@ -1,7 +1,6 @@
 'use strict'
 
 const { google } = require('googleapis')
-const { log } = require('./log')
 require('dotenv').config()
 
 class GDrive {
@@ -97,13 +96,13 @@ class GDrive {
         const file = res.data.files.find((file) => file.name === fileMetaData.resource['name'])
         if (!file) {
           drive.files.create(fileMetaData).then((res) => {
-            log(`Created ${fileMetaData.resource['mimeType']}: ${fileMetaData.resource['name']}`)
+            console.log(`Created ${fileMetaData.resource['mimeType']}: ${fileMetaData.resource['name']}`)
             resolve(res.data)
           }, (err) => {
             reject(err)
           })
         } else {
-          log(`File already exists! ${fileMetaData.resource['mimeType']}: ${fileMetaData.resource['name']}`)
+          console.log(`File already exists! ${fileMetaData.resource['mimeType']}: ${fileMetaData.resource['name']}`)
           resolve(file)
         }
       }, (err) => {
