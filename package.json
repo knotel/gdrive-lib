@@ -24,7 +24,6 @@
     "@babel/polyfill": "^7.2.5",
     "chalk": "^2.4.2",
     "dotenv": "^6.2.0",
-    "fs": "^0.0.1-security",
     "googleapis": "^37.2.0"
   },
   "devDependencies": {
@@ -41,6 +40,7 @@
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
+    "fs": "0.0.1-security",
     "sinon": "^7.2.4",
     "util": "^0.11.1"
   }
