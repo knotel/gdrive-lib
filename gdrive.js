@@ -135,7 +135,7 @@ class GDrive {
 
   _upsertFile (parentFolderId, rename, fileStruct) {
     return new Promise((resolve, reject) => {
-      this._fetchGoogleFiles(parentFolderId, fileStruct).then((files) => {
+      this._fetchGoogleFiles(parentFolderId).then((files) => {
         let file = files.find((file) => {
           if (rename && fileStruct.id) return file.id === fileStruct.id
         })
