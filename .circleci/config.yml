@@ -33,7 +33,7 @@ jobs:
     - run:
         name: Running Vuln Tests
         command: yarn run test:vuln
-  test-jest:
+  test-mocha:
     docker:
     - image: *image_default
     working_directory: *working_directory
@@ -41,8 +41,8 @@ jobs:
     - checkout:
         path: ~/gdrive-lib
     - run:
-        name: Running jest tests
-        command: yarn run test:jest
+        name: Running mocha tests
+        command: yarn run test:mocha
   test-eslint:
     docker:
     - image: *image_default
