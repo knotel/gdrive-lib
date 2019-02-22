@@ -14,7 +14,7 @@ jobs:
         key: gdrive-lib-dependency-cache-{{ checksum "package.json" }}
     - run:
         name: Running Build setup
-        command: yarn
+        command: npm
     - save_cache:
         key: gdrive-lib-dependency-cache-{{ checksum "package.json" }}
         paths:
@@ -32,7 +32,7 @@ jobs:
         path: ~/gdrive-lib
     - run:
         name: Running Vuln Tests
-        command: yarn run test:vuln
+        command: npm run test:vuln
   test-mocha:
     docker:
     - image: *image_default
@@ -42,7 +42,7 @@ jobs:
         path: ~/gdrive-lib
     - run:
         name: Running mocha tests
-        command: yarn run test:mocha
+        command: npm run test:mocha
   test-eslint:
     docker:
     - image: *image_default
@@ -52,7 +52,7 @@ jobs:
         path: ~/gdrive-lib
     - run:
         name: Running linter
-        command: yarn run test:lint
+        command: npm run test:lint
 
 workflows:
   version: 2
