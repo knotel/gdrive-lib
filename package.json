@@ -22,7 +22,6 @@
   "dependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/polyfill": "^7.2.5",
-    "chalk": "^2.4.2",
     "dotenv": "^6.2.0",
     "googleapis": "^37.2.0"
   },
