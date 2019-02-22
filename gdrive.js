@@ -75,11 +75,11 @@ class GDrive {
 
   async _getDirectory (options, parentFolder, parentFolderId) {
     const files = await this._fetchGoogleFiles(parentFolderId, options.foldersOnly)
-    if (files.length <= 0) return // base case
     parentFolder.children = files // push onto file structure
     if (options.nonFolderFileCount) {
       parentFolder.nonFolderFileCount = files.filter(file => file.mimeType !== 'application/vnd.google-apps.folder').length
     }
+    if (files.length <= 0) return // base case
     if (options.recursive) {
       let i = 0
       while (i < files.length) {
