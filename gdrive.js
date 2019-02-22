@@ -59,31 +59,38 @@ class GDrive {
    * @returns {Array} Returns descendents of root folder in either a flat object array or nested object array.
    *
    */
-  getAll ({ rootFolderId, recursive = false } = {}) {
+  getAll ({ rootFolderId, recursive = false, foldersOnly = false, nonFolderFileCount = true } = {}) {
     const fileStructure = {
       id: rootFolderId,
       children: [],
     }
     return new Promise((resolve, reject) => {
       return (async () => {
-        await this._getDirectory(fileStructure, rootFolderId, recursive)
+        await this._getDirectory(fileStructure, rootFolderId, recursive, foldersOnly, nonFolderFileCount)
         resolve(fileStructure)
       })()
     })
   }
 
-  async _getDirectory (parentFolder, parentFolderId, recursive = false) {
-    const files = await this._fetchGoogleFiles(parentFolderId)
+  async _getDirectory (parentFolder, parentFolderId, recursive, foldersOnly, nonFolderFileCount) {
+    let files = await this._fetchGoogleFiles(parentFolderId)
+    if (foldersOnly) {
+      files = files.filter(file => {
+        return file.mimeType === 'application/vnd.google-apps.folder'
+      })
+    }
     if (files.length <= 0) return // base case
     parentFolder.children = files // push onto file structure
-    parentFolder.nonFolderFileCount = files.filter(file => {
-      return file.mimeType !== 'application/vnd.google-apps.folder'
-    }).length
+    if (nonFolderFileCount) {
+      parentFolder.nonFolderFileCount = files.filter(file => {
+        return file.mimeType !== 'application/vnd.google-apps.folder'
+      }).length
+    }
     if (recursive) {
       let i = 0
       while (i < files.length) {
         const file = files[i]
-        if (file.mimeType === 'application/vnd.google-apps.folder') await this._getDirectory(file, file.id, recursive)
+        if (file.mimeType === 'application/vnd.google-apps.folder') await this._getDirectory(file, file.id, recursive, foldersOnly, nonFolderFileCount)
         i++
       }
     }
