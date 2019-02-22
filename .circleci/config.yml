@@ -1,0 +1,70 @@
+version: 2
+
+anchors:
+    - &image_default circleci/node:10.1.0
+    - &working_directory ~/gdrive-lib
+jobs:
+  build:
+    docker:
+    - image: *image_default
+    working_directory: *working_directory
+    steps:
+    - checkout
+    - restore_cache:
+        key: gdrive-lib-dependency-cache-{{ checksum "package.json" }}
+    - run:
+        name: Running Build setup
+        command: yarn
+    - save_cache:
+        key: gdrive-lib-dependency-cache-{{ checksum "package.json" }}
+        paths:
+        - node_modules
+    - persist_to_workspace:
+        root: .
+        paths:
+        - .
+  test-vuln:
+    docker:
+    - image: *image_default
+    working_directory: *working_directory
+    steps:
+    - checkout:
+        path: ~/gdrive-lib
+    - run:
+        name: Running Vuln Tests
+        command: yarn run test:vuln
+  test-jest:
+    docker:
+    - image: *image_default
+    working_directory: *working_directory
+    steps:
+    - checkout:
+        path: ~/gdrive-lib
+    - run:
+        name: Running jest tests
+        command: yarn run test:jest
+  test-eslint:
+    docker:
+    - image: *image_default
+    working_directory: *working_directory
+    steps:
+    - checkout:
+        path: ~/gdrive-lib
+    - run:
+        name: Running linter
+        command: yarn run test:lint
+
+  workflows:
+    version: 2
+    gdrive-lib-all:
+      jobs:
+      - build
+      - test-vuln:
+          requires:
+          - build
+      - test-jest:
+          requires:
+          - build
+      - test-elint:
+          requires:
+          - build
