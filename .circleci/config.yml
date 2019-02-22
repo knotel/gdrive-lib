@@ -29,7 +29,7 @@ jobs:
     working_directory: *working_directory
     steps:
     - attach_workspace:
-        at: .-
+        at: *working_directory
     - run:
         name: Running Vuln Tests
         command: npm run test:vuln
@@ -39,7 +39,7 @@ jobs:
     working_directory: *working_directory
     steps:
     - attach_workspace:
-        at: .-
+        at: *working_directory
     - run:
         name: Running mocha tests
         command: npm run test:mocha
@@ -49,7 +49,7 @@ jobs:
     working_directory: *working_directory
     steps:
     - attach_workspace:
-        at: .-
+        at: *working_directory
     - run:
         name: Running linter
         command: npm run test:lint
