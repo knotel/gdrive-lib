@@ -62,7 +62,7 @@ workflows:
     - test-vuln:
         requires:
         - build
-    - test-jest:
+    - test-mocha:
         requires:
         - build
     - test-elint:
