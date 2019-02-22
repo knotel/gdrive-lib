@@ -1,7 +1,6 @@
 'use strict'
 
 const { google } = require('googleapis')
-const { log } = require('./log')
 require('dotenv').config()
 
 class GDrive {
@@ -32,6 +31,7 @@ class GDrive {
   init () {
     return new Promise((resolve, reject) => {
       const auth = new google.auth.JWT(...this.authCredentials)
+      this.auth = auth
       this.drive = google.drive({ version: 'v3', auth })
       auth.authorize(function (err, tokens) {
         if (err) reject(err)
@@ -43,68 +43,121 @@ class GDrive {
   get (fileId) {
     return new Promise((resolve, reject) => {
       this.drive.files.get({ fileId: fileId })
-      .then((res) => {
-        resolve(res.data)
-      }, (err) => {
+        .then((res) => {
+          resolve(res.data)
+        }, (err) => {
+          reject(err)
+        })
+    })
+  }
+
+  /**
+   * Fetch all files from Google Drive folder specified. Can recursively traverse folder if specified in `recursive` option.
+   * Can return folders only with `foldersOnly` option. Can add a non-folder file count with `nonFolderFileCount`.
+   *
+   * @since 0.0.1
+   * @param {Object} options Specific configurations for how to get files from Google Drive.
+   * @returns {Array} Returns descendents of root folder in either a flat object array or nested object array.
+   *
+   */
+  getAll ({ rootFolderId, recursive = false, foldersOnly = false, nonFolderFileCount = true } = {}) {
+    const fileStructure = {
+      id: rootFolderId,
+      children: [],
+    }
+    return new Promise((resolve, reject) => {
+      return (async () => {
+        await this._getDirectory({ recursive, foldersOnly, nonFolderFileCount }, fileStructure, rootFolderId)
+        resolve(fileStructure)
+      })()
+    })
+  }
+
+  async _getDirectory (options, parentFolder, parentFolderId) {
+    const files = await this._fetchGoogleFiles(parentFolderId, options.foldersOnly)
+    parentFolder.children = files // push onto file structure
+    if (options.nonFolderFileCount) {
+      parentFolder.nonFolderFileCount = files.filter(file => file.mimeType !== 'application/vnd.google-apps.folder').length
+    }
+    if (files.length <= 0) return // base case
+    if (options.recursive) {
+      let i = 0
+      while (i < files.length) {
+        const file = files[i]
+        if (file.mimeType === 'application/vnd.google-apps.folder') await this._getDirectory(options, file, file.id)
+        i++
+      }
+    }
+  }
+
+  async _fetchGoogleFiles (parentFolderId, foldersOnly = false) {
+    return new Promise((resolve, reject) => {
+      this.drive.files.list({
+        ...this.driveOptions,
+        q: `${foldersOnly ? 'mimeType = "application/vnd.google-apps.folder" and ' : ''}'${parentFolderId}' in parents and trashed = false`,
+      }).then(res => {
+        resolve(res.data.files)
+      }, err => {
         reject(err)
       })
     })
   }
 
   /**
-   * Returns file by ID. If folder, will return children up to pageSize limit.
+   * Recursively upsert folders by ID or name specified in schema.
    *
    * @since 0.0.1
    * @param {Object} options Specific configurations for how to get files from Google Drive.
-   * @param {string } fileId Unique Google Drive file ID.
-   * @returns {Array} Returns direct descendents of root folder specified with names, MIME Types and select metadata.
+   * @param {Array} directorySchema Nested structure of objects and object arrays. All files should have an ID or name.
+   * @returns {Array} Returns directorySchema in the same format, except missing names and IDs are returned where files are newly created.
    *
    */
-  getAll (options) {
-    const { rootFolderId } = options
-    return new Promise((resolve, reject) => {
-      this.drive.files.list({
-        ...this.driveOptions,
-        q: `'${rootFolderId}' in parents and trashed = false`,
-      }).then((res) => {
-        resolve(res.data.files)
-      }, (err) => {
-        reject(err)
-      })
-    })
-  }
-
-  upsert (options, directorySchema) {
-    const { rootFolderId } = options
+  upsert ({ rootFolderId, rename }, directorySchema) {
     return new Promise((resolve, reject) => {
       return (async () => {
-        await this._buildDirectory(this.drive, directorySchema, rootFolderId)
+        await this._upsertDirectory(directorySchema, rootFolderId, rename)
         resolve(directorySchema)
       })()
     })
   }
 
-  update () {}
+  async _upsertDirectory (fileStructArray, parentFolderId, rename) {
+    let i = 0
+    while (i < fileStructArray.length) {
+      const fileStruct = fileStructArray[i]
+      const file = await this._upsertFile(parentFolderId, rename, fileStruct)
+      // TODO: check for error
+      fileStruct.id = file.id
+      fileStruct.name = file.name
+      if (fileStruct.children) await this._upsertDirectory(fileStruct.children, fileStruct.id, rename)
+      i++
+    }
+  }
 
-  destroy () {}
-
-  _upsert (drive, parentFolderId, fileMetaData) {
+  _upsertFile (parentFolderId, rename, fileStruct) {
     return new Promise((resolve, reject) => {
-      drive.files.list({
-        ...this.driveOptions,
-        q: `'${parentFolderId}' in parents and trashed = false`,
-      }).then((res) => {
-        const file = res.data.files.find((file) => file.name === fileMetaData.resource['name'])
+      this._fetchGoogleFiles(parentFolderId, false).then(files => {
+        let file = files.find((file) => {
+          if (rename && fileStruct.id) return file.id === fileStruct.id
+        })
+        if (!file) file = files.find(file => file.name === fileStruct.name)
         if (!file) {
-          drive.files.create(fileMetaData).then((res) => {
-            log(`Created ${fileMetaData.resource['mimeType']}: ${fileMetaData.resource['name']}`)
-            resolve(res.data)
+          this._createGoogleFile(parentFolderId, fileStruct).then(file => {
+            resolve(file)
           }, (err) => {
             reject(err)
           })
         } else {
-          log(`File already exists! ${fileMetaData.resource['mimeType']}: ${fileMetaData.resource['name']}`)
-          resolve(file)
+          if (rename && file.name !== fileStruct.name) {
+            this._updateGoogleFile(file, fileStruct).then(file => {
+              resolve(file)
+            }, (err) => {
+              reject(err)
+            })
+          } else {
+            console.log(`File already exists! ${fileStruct.mimeType}: ${fileStruct.name}`)
+            resolve(file)
+          }
         }
       }, (err) => {
         reject(err)
@@ -112,19 +165,36 @@ class GDrive {
     })
   }
 
-  async _buildDirectory (drive, fileStructArray, parentFolderId) {
-    let i = 0
-    while (i < fileStructArray.length) {
-      const fileStruct = fileStructArray[i]
-      const file = await this._upsert(drive, parentFolderId, this._fileMetaData(fileStruct, parentFolderId))
-      // TODO: check for error
-      fileStruct.id = file.id
-      if (fileStruct.children) await this._buildDirectory(drive, fileStruct.children, fileStruct.id)
-      i++
-    }
+  _createGoogleFile (parentFolderId, fileStruct) {
+    const fileMetadata = this._createGoogleMetadata(fileStruct, parentFolderId)
+    return new Promise((resolve, reject) => {
+      this.drive.files.create(fileMetadata).then(res => {
+        console.log(`Created ${fileStruct.mimeType}: ${fileStruct.name}`)
+        resolve({ ...res.data, name: fileStruct.name, mimeType: fileStruct.mimeType })
+      }, err => {
+        reject(err)
+      })
+    })
   }
 
-  _fileMetaData (fileStruct, parentFolderId) {
+  _updateGoogleFile (file, fileStruct) {
+    return new Promise((resolve, reject) => {
+      this.drive.files.update({
+        fileId: fileStruct.id,
+        supportsTeamDrives: true,
+        resource: {
+          'name': fileStruct.name,
+        },
+      }).then(res => {
+        console.log(`Updated ${fileStruct.mimeType}: ${file.name} -> ${fileStruct.name}`)
+        resolve(res.data)
+      }, err => {
+        reject(err)
+      })
+    })
+  }
+
+  _createGoogleMetadata (fileStruct, parentFolderId) {
     // TODO: Handle for files created from template.
     // TODO: Handle for dynamic folders created using spaces.
     const resource = {
@@ -132,7 +202,7 @@ class GDrive {
       'parents': [parentFolderId],
       'mimeType': fileStruct.mimeType,
       'teamDriveId': this.driveOptions.teamDriveId,
-      'fields': 'id',
+      'fields': 'id name',
     }
     return {
       resource: resource,
@@ -140,6 +210,10 @@ class GDrive {
       fields: 'id, parents',
     }
   }
+
+  update () {}
+
+  destroy () {}
 }
 
-export default GDrive
+module.exports = GDrive

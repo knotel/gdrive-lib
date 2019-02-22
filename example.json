@@ -4,7 +4,7 @@
     "mimeType": "application/vnd.google-apps.folder",
     "children": [
       { "name": "Archive", "mimeType": "application/vnd.google-apps.folder" },
-      { "name": "Archive 2", "mimeType": "application/vnd.google-apps.folder",
+      { "name": "Archive 2", "id": "1MATkffMyyhAq6Mc__zyVIk_AIzSo09mf", "mimeType": "application/vnd.google-apps.folder",
         "children": [
           { "name": "sub archive", "mimeType": "application/vnd.google-apps.folder" },
           { "name": "sub archive 2",

@@ -1,6 +1,11 @@
 # gdrive-lib
 Library for common Google Drive functionality.
 
+# Get Started
+
+```
+yarn add @knotel/gdrive-lib --save
+```
 
 # Google Folders
 
@@ -17,6 +22,9 @@ Library for common Google Drive functionality.
 
 1. Specify credentials.json.
 
+## Google Drive REST API Reference
+
+* https://developers.google.com/drive/api/v3/reference/
 
 ## Supported MIME Types
 
@@ -26,7 +34,7 @@ Library for common Google Drive functionality.
 ## Getting Started
 
 ```
-let gdrive = new GDrive()
+const GDrive = require('@knotel/gdrive-lib')
 gdrive.init() // set auth within internal state of gdrive instance
 gdrive.getAll({
   rootFolderId: 'XXX'

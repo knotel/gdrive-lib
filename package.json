@@ -1,24 +1,27 @@
 {
-  "name": "gdrive-lib",
-  "version": "0.0.1",
-  "main": "index.js",
+  "name": "@knotel/gdrive-lib",
+  "description": "Library for building/fetching Google Team Drive metadata in nested JSON format",
+  "version": "0.0.2",
+  "main": "build/gdrive.js",
   "repository": "git@github.com:knotel/gdrive-lib.git",
   "author": "cfaruki@knotel.com",
   "license": "MIT",
-  "private": true,
   "scripts": {
-    "test": "snyk test",
+    "build": "npm install && npx babel gdrive.js --out-file build/gdrive.js",
+    "sandbox": "node sandbox.js",
+    "test": "yarn test:lint && yarn test:mocha && yarn test:vuln",
     "test:lint": "eslint --ext .js .",
     "test:lint:fix": "eslint --ext .js . --fix",
     "test:mocha": "mocha --require @babel/register",
     "test:vuln": "snyk test"
   },
+  "engines": {
+    "node": ">=7.8.0"
+  },
   "dependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/polyfill": "^7.2.5",
-    "chalk": "^2.4.2",
     "dotenv": "^6.2.0",
-    "fs": "^0.0.1-security",
     "googleapis": "^37.2.0"
   },
   "devDependencies": {
@@ -35,7 +38,10 @@
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
+    "fs": "0.0.1-security",
+    "mocha": "^6.0.1",
     "sinon": "^7.2.4",
-    "util": "^0.11.1"
+    "util": "^0.11.1",
+    "snyk": "^1.134.2"
   }
 }
