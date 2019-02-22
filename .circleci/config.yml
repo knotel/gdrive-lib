@@ -14,7 +14,7 @@ jobs:
         key: gdrive-lib-dependency-cache-{{ checksum "package.json" }}
     - run:
         name: Running Build setup
-        command: npm
+        command: npm run build
     - save_cache:
         key: gdrive-lib-dependency-cache-{{ checksum "package.json" }}
         paths:
