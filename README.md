@@ -34,7 +34,7 @@ yarn add @knotel/gdrive-lib --save
 ## Getting Started
 
 ```
-let gdrive = new GDrive()
+const GDrive = require('@knotel/gdrive-lib')
 gdrive.init() // set auth within internal state of gdrive instance
 gdrive.getAll({
   rootFolderId: 'XXX'
