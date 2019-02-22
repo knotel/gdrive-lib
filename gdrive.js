@@ -53,50 +53,51 @@ class GDrive {
 
   /**
    * Fetch all files from Google Drive folder specified. Can recursively traverse folder if specified in `recursive` option.
+   * Can return folders only with `foldersOnly` option. Can add a non-folder file count with `nonFolderFileCount`.
    *
    * @since 0.0.1
    * @param {Object} options Specific configurations for how to get files from Google Drive.
    * @returns {Array} Returns descendents of root folder in either a flat object array or nested object array.
    *
    */
-  getAll ({ rootFolderId, recursive = false } = {}) {
+  getAll ({ rootFolderId, recursive = false, foldersOnly = false, nonFolderFileCount = true } = {}) {
     const fileStructure = {
       id: rootFolderId,
       children: [],
     }
     return new Promise((resolve, reject) => {
       return (async () => {
-        await this._getDirectory(fileStructure, rootFolderId, recursive)
+        await this._getDirectory({ recursive, foldersOnly, nonFolderFileCount }, fileStructure, rootFolderId)
         resolve(fileStructure)
       })()
     })
   }
 
-  async _getDirectory (parentFolder, parentFolderId, recursive = false) {
-    const files = await this._fetchGoogleFiles(parentFolderId)
-    if (files.length <= 0) return // base case
+  async _getDirectory (options, parentFolder, parentFolderId) {
+    const files = await this._fetchGoogleFiles(parentFolderId, options.foldersOnly)
     parentFolder.children = files // push onto file structure
-    parentFolder.nonFolderFileCount = files.filter(file => {
-      return file.mimeType !== 'application/vnd.google-apps.folder'
-    }).length
-    if (recursive) {
+    if (options.nonFolderFileCount) {
+      parentFolder.nonFolderFileCount = files.filter(file => file.mimeType !== 'application/vnd.google-apps.folder').length
+    }
+    if (files.length <= 0) return // base case
+    if (options.recursive) {
       let i = 0
       while (i < files.length) {
         const file = files[i]
-        if (file.mimeType === 'application/vnd.google-apps.folder') await this._getDirectory(file, file.id, recursive)
+        if (file.mimeType === 'application/vnd.google-apps.folder') await this._getDirectory(options, file, file.id)
         i++
       }
     }
   }
 
-  async _fetchGoogleFiles (parentFolderId) {
+  async _fetchGoogleFiles (parentFolderId, foldersOnly = false) {
     return new Promise((resolve, reject) => {
       this.drive.files.list({
         ...this.driveOptions,
-        q: `'${parentFolderId}' in parents and trashed = false`,
-      }).then((res) => {
+        q: `${foldersOnly ? 'mimeType = "application/vnd.google-apps.folder" and ' : ''}'${parentFolderId}' in parents and trashed = false`,
+      }).then(res => {
         resolve(res.data.files)
-      }, (err) => {
+      }, err => {
         reject(err)
       })
     })
@@ -135,20 +136,20 @@ class GDrive {
 
   _upsertFile (parentFolderId, rename, fileStruct) {
     return new Promise((resolve, reject) => {
-      this._fetchGoogleFiles(parentFolderId).then((files) => {
+      this._fetchGoogleFiles(parentFolderId, false).then(files => {
         let file = files.find((file) => {
           if (rename && fileStruct.id) return file.id === fileStruct.id
         })
-        if (!file) file = files.find((file) => file.name === fileStruct.name)
+        if (!file) file = files.find(file => file.name === fileStruct.name)
         if (!file) {
-          this._createGoogleFile(parentFolderId, fileStruct).then((file) => {
+          this._createGoogleFile(parentFolderId, fileStruct).then(file => {
             resolve(file)
           }, (err) => {
             reject(err)
           })
         } else {
           if (rename && file.name !== fileStruct.name) {
-            this._updateGoogleFile(file, fileStruct).then((file) => {
+            this._updateGoogleFile(file, fileStruct).then(file => {
               resolve(file)
             }, (err) => {
               reject(err)
@@ -167,43 +168,30 @@ class GDrive {
   _createGoogleFile (parentFolderId, fileStruct) {
     const fileMetadata = this._createGoogleMetadata(fileStruct, parentFolderId)
     return new Promise((resolve, reject) => {
-      this.drive.files.create(fileMetadata).then((res) => {
+      this.drive.files.create(fileMetadata).then(res => {
         console.log(`Created ${fileStruct.mimeType}: ${fileStruct.name}`)
-        resolve({ ...res.data, name: fileStruct.name, mimeType: fileStruct.mimeType})
-      }, (err) => {
+        resolve({ ...res.data, name: fileStruct.name, mimeType: fileStruct.mimeType })
+      }, err => {
         reject(err)
       })
     })
   }
 
   _updateGoogleFile (file, fileStruct) {
-    const fileMetaData = this._updateGoogleMetadata(file, fileStruct)
     return new Promise((resolve, reject) => {
       this.drive.files.update({
         fileId: fileStruct.id,
         supportsTeamDrives: true,
         resource: {
-          'name': fileStruct.name
-        }
-      }).then((res) => {
+          'name': fileStruct.name,
+        },
+      }).then(res => {
         console.log(`Updated ${fileStruct.mimeType}: ${file.name} -> ${fileStruct.name}`)
         resolve(res.data)
-      }, (err) => {
+      }, err => {
         reject(err)
       })
     })
-  }
-
-  _updateGoogleMetadata (file, fileStruct) {
-    const resource = {
-      resource: {
-        'name': fileStruct.name,
-      }
-    }
-    return {
-      fileId: fileStruct.id,
-      resource: resource
-    }
   }
 
   _createGoogleMetadata (fileStruct, parentFolderId) {
