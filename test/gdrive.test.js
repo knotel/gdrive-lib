@@ -6,14 +6,14 @@ import chaiAsPromised from 'chai-as-promised'
 // import { google } from 'googleapis'
 chai.use(chaiAsPromised)
 
-const gdrive = new GDrive()
+// const gdrive = new GDrive()
 // const jwtStub = sinon.stub(google.auth, 'JWT')
 // const driveStub = sinon.stub(google, 'drive').returns({
 //   files: sinon.stub().returns({
 //     list: sinon.stub().returns({})
 //   })
 // })
-gdrive.init()
+// gdrive.init()
 
 describe('GDrive', () => {
   xdescribe('#getAll()', () => {
