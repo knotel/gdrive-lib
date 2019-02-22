@@ -9,7 +9,6 @@
   "scripts": {
     "build": "npm install && npx babel gdrive.js --out-file build/gdrive.js",
     "sandbox": "node sandbox.js",
-    "prepublish": "npm run test:lint && npm run test:mocha && npm run test:vuln",
     "test": "yarn test:lint && yarn test:mocha && yarn test:vuln",
     "test:lint": "eslint --ext .js .",
     "test:lint:fix": "eslint --ext .js . --fix",
