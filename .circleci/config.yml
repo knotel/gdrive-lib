@@ -30,8 +30,6 @@ jobs:
     steps:
     - attach_workspace:
         at: .-
-    - restore_cache:
-        key: gdrive-lib-dependency-cache-{{ checksum "package.json" }}
     - run:
         name: Running Vuln Tests
         command: npm run test:vuln
@@ -42,8 +40,6 @@ jobs:
     steps:
     - attach_workspace:
         at: .-
-    - restore_cache:
-        key: gdrive-lib-dependency-cache-{{ checksum "package.json" }}
     - run:
         name: Running mocha tests
         command: npm run test:mocha
@@ -54,8 +50,6 @@ jobs:
     steps:
     - attach_workspace:
         at: .-
-    - restore_cache:
-        key: gdrive-lib-dependency-cache-{{ checksum "package.json" }}
     - run:
         name: Running linter
         command: npm run test:lint
