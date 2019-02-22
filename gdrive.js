@@ -53,6 +53,7 @@ class GDrive {
 
   /**
    * Fetch all files from Google Drive folder specified. Can recursively traverse folder if specified in `recursive` option.
+   * Can return folders only with `foldersOnly` option. Can add a non-folder file count with `nonFolderFileCount`.
    *
    * @since 0.0.1
    * @param {Object} options Specific configurations for how to get files from Google Drive.
