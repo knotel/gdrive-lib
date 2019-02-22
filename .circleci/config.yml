@@ -28,8 +28,10 @@ jobs:
     - image: *image_default
     working_directory: *working_directory
     steps:
-    - checkout:
-        path: ~/gdrive-lib
+    - attach_workspace:
+        at: .-
+    - restore_cache:
+        key: gdrive-lib-dependency-cache-{{ checksum "package.json" }}
     - run:
         name: Running Vuln Tests
         command: npm run test:vuln
@@ -38,8 +40,10 @@ jobs:
     - image: *image_default
     working_directory: *working_directory
     steps:
-    - checkout:
-        path: ~/gdrive-lib
+    - attach_workspace:
+        at: .-
+    - restore_cache:
+        key: gdrive-lib-dependency-cache-{{ checksum "package.json" }}
     - run:
         name: Running mocha tests
         command: npm run test:mocha
@@ -48,8 +52,10 @@ jobs:
     - image: *image_default
     working_directory: *working_directory
     steps:
-    - checkout:
-        path: ~/gdrive-lib
+    - attach_workspace:
+        at: .-
+    - restore_cache:
+        key: gdrive-lib-dependency-cache-{{ checksum "package.json" }}
     - run:
         name: Running linter
         command: npm run test:lint
@@ -65,6 +71,6 @@ workflows:
     - test-mocha:
         requires:
         - build
-    - test-elint:
+    - test-eslint:
         requires:
         - build
