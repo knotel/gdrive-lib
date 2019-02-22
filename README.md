@@ -4,7 +4,7 @@ Library for common Google Drive functionality.
 # Get Started
 
 ```
-yarn add knotel/gdrive-lib --save
+yarn add @knotel/gdrive-lib --save
 ```
 
 # Google Folders
@@ -22,6 +22,9 @@ yarn add knotel/gdrive-lib --save
 
 1. Specify credentials.json.
 
+## Google Drive REST API Reference
+
+* https://developers.google.com/drive/api/v3/reference/
 
 ## Supported MIME Types
 
