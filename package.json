@@ -1,7 +1,7 @@
 {
   "name": "@knotel/gdrive-lib",
   "description": "Library for building/fetching Google Team Drive metadata in nested JSON format",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "build/gdrive.js",
   "repository": "git@github.com:knotel/gdrive-lib.git",
   "author": "cfaruki@knotel.com",
@@ -17,6 +17,11 @@
   },
   "engines": {
     "node": ">=7.8.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run build && git add build"
+    }
   },
   "dependencies": {
     "@babel/cli": "^7.2.3",
@@ -39,9 +44,10 @@
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
     "fs": "0.0.1-security",
+    "husky": "^1.3.1",
     "mocha": "^6.0.1",
     "sinon": "^7.2.4",
-    "util": "^0.11.1",
-    "snyk": "^1.134.2"
+    "snyk": "^1.134.2",
+    "util": "^0.11.1"
   }
 }
