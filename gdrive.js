@@ -124,12 +124,11 @@ class GDrive {
   async _upsertDirectory (fileStructArray, parentFolderId, rename) {
     let i = 0
     while (i < fileStructArray.length) {
-      const fileStruct = fileStructArray[i]
-      const file = await this._upsertFile(parentFolderId, rename, fileStruct)
+      const file = await this._upsertFile(parentFolderId, rename, fileStructArray[i])
       // TODO: check for error
-      fileStruct.id = file.id
-      fileStruct.name = file.name
-      if (fileStruct.children) await this._upsertDirectory(fileStruct.children, fileStruct.id, rename)
+      fileStructArray[i].id = file.id
+      fileStructArray[i].name = file.name
+      if (fileStructArray[i].children) await this._upsertDirectory(fileStructArray[i].children, fileStructArray[i].id, rename)
       i++
     }
   }
