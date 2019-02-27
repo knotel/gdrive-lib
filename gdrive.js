@@ -3,6 +3,12 @@
 const { google } = require('googleapis')
 require('dotenv').config()
 
+const delay = (ms) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve, ms)
+  })
+}
+
 class GDrive {
   constructor () {
     this.driveOptions = {
@@ -122,6 +128,7 @@ class GDrive {
   }
 
   async _upsertDirectory (fileStructArray, parentFolderId, rename) {
+    await delay(500)
     let i = 0
     while (i < fileStructArray.length) {
       const file = await this._upsertFile(parentFolderId, rename, fileStructArray[i])
@@ -133,7 +140,8 @@ class GDrive {
     }
   }
 
-  _upsertFile (parentFolderId, rename, fileStruct) {
+  async _upsertFile (parentFolderId, rename, fileStruct) {
+    await delay(500)
     return new Promise((resolve, reject) => {
       this._fetchGoogleFiles(parentFolderId, false).then(files => {
         let file = files.find((file) => {
