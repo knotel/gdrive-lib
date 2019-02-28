@@ -58,6 +58,13 @@ workflows:
   version: 2
   gdrive-lib-all:
     jobs:
-    - test-vuln
-    - test-mocha
-    - test-eslint
+    - build
+    - test-vuln:
+        requires:
+        - build
+    - test-mocha:
+        requires:
+        - build
+    - test-eslint:
+        requires:
+        - build
