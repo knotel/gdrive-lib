@@ -4,25 +4,6 @@ anchors:
     - &image_default circleci/node:10.1.0
     - &working_directory ~/gdrive-lib
 jobs:
-  build:
-    docker:
-    - image: *image_default
-    working_directory: *working_directory
-    steps:
-    - checkout
-    - restore_cache:
-        key: gdrive-lib-dependency-cache-{{ checksum "package.json" }}
-    - run:
-        name: Running Build setup
-        command: npm run build
-    - save_cache:
-        key: gdrive-lib-dependency-cache-{{ checksum "package.json" }}
-        paths:
-        - node_modules
-    - persist_to_workspace:
-        root: ~/gdrive-lib
-        paths:
-        - .
   test-vuln:
     docker:
     - image: *image_default
@@ -32,7 +13,7 @@ jobs:
         at: *working_directory
     - run:
         name: Running Vuln Tests
-        command: npm run test:vuln
+        command: yarn run test:vuln
   test-mocha:
     docker:
     - image: *image_default
@@ -42,7 +23,7 @@ jobs:
         at: *working_directory
     - run:
         name: Running mocha tests
-        command: npm run test:mocha
+        command: yarn run test:mocha
   test-eslint:
     docker:
     - image: *image_default
@@ -52,7 +33,7 @@ jobs:
         at: *working_directory
     - run:
         name: Running linter
-        command: npm run test:lint
+        command: yarn run test:lint
 
 workflows:
   version: 2

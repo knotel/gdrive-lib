@@ -7,12 +7,11 @@
   "author": "cfaruki@knotel.com",
   "license": "MIT",
   "scripts": {
-    "build": "npm install && npx babel gdrive.js --out-file build/gdrive.js",
     "sandbox": "node sandbox.js",
     "test": "yarn test:lint && yarn test:mocha && yarn test:vuln",
     "test:lint": "eslint --ext .js .",
     "test:lint:fix": "eslint --ext .js . --fix",
-    "test:mocha": "mocha --require @babel/register",
+    "test:mocha": "mocha",
     "test:vuln": "snyk test"
   },
   "engines": {
@@ -24,17 +23,10 @@
     }
   },
   "dependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/polyfill": "^7.2.5",
     "dotenv": "^6.2.0",
     "googleapis": "^37.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.3.3",
-    "@babel/plugin-transform-runtime": "^7.2.0",
-    "@babel/preset-env": "^7.3.1",
-    "@babel/register": "^7.0.0",
-    "@babel/runtime": "^7.3.1",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "eslint": "^5.14.1",
