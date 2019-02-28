@@ -80,6 +80,7 @@ class GDrive {
   }
 
   async _getDirectory (options, parentFolder, parentFolderId) {
+    await delay(500)
     const files = await this._fetchGoogleFiles(parentFolderId, options.foldersOnly)
     parentFolder.children = files // push onto file structure
     if (options.nonFolderFileCount) {
@@ -97,6 +98,7 @@ class GDrive {
   }
 
   async _fetchGoogleFiles (parentFolderId, foldersOnly = false) {
+    await delay(500)
     return new Promise((resolve, reject) => {
       this.drive.files.list({
         ...this.driveOptions,
@@ -128,9 +130,9 @@ class GDrive {
   }
 
   async _upsertDirectory (fileStructArray, parentFolderId, rename) {
-    await delay(500)
     let i = 0
     while (i < fileStructArray.length) {
+      await delay(500)
       const file = await this._upsertFile(parentFolderId, rename, fileStructArray[i])
       // TODO: check for error
       fileStructArray[i].id = file.id
@@ -172,7 +174,8 @@ class GDrive {
     })
   }
 
-  _createGoogleFile (parentFolderId, fileStruct) {
+  async _createGoogleFile (parentFolderId, fileStruct) {
+    await delay(500)
     const fileMetadata = this._createGoogleMetadata(fileStruct, parentFolderId)
     return new Promise((resolve, reject) => {
       this.drive.files.create(fileMetadata).then(res => {
@@ -184,7 +187,8 @@ class GDrive {
     })
   }
 
-  _updateGoogleFile (file, fileStruct) {
+  async _updateGoogleFile (file, fileStruct) {
+    await delay(500)
     return new Promise((resolve, reject) => {
       this.drive.files.update({
         fileId: fileStruct.id,
