@@ -11,6 +11,11 @@ const delay = (ms) => {
 
 class GDrive {
   constructor () {
+    // Hack to fix knot problem with key that has spaces and new lines.
+    // TODO: Replace with base64 encoding and decoding.
+    let PRIVATE_KEY = process.env.PRIVATE_KEY
+    PRIVATE_KEY = PRIVATE_KEY.replace(/<SPACE>/g, ' ')
+    PRIVATE_KEY = PRIVATE_KEY.replace(/<NEWLINE>/g, '\n')
     this.driveOptions = {
       pageSize: 200,
       corpora: 'teamDrive',
@@ -22,7 +27,7 @@ class GDrive {
     this.authCredentials = [
       process.env.CLIENT_EMAIL,
       null,
-      process.env.PRIVATE_KEY,
+      PRIVATE_KEY,
       ['https://www.googleapis.com/auth/drive'],
       process.env.USER_EMAIL,
     ]
