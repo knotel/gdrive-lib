@@ -11,11 +11,8 @@ const delay = (ms) => {
 
 class GDrive {
   constructor () {
-    // Hack to fix knot problem with key that has spaces and new lines.
-    // TODO: Replace with base64 encoding and decoding.
-    let PRIVATE_KEY = process.env.PRIVATE_KEY
-    PRIVATE_KEY = PRIVATE_KEY.replace(/<SPACE>/g, ' ')
-    PRIVATE_KEY = PRIVATE_KEY.replace(/<NEWLINE>/g, '\n')
+    const buff = Buffer.from(process.env.PRIVATE_KEY, 'base64')
+    const PRIVATE_KEY = buff.toString()
     this.driveOptions = {
       pageSize: 200,
       corpora: 'teamDrive',
@@ -156,12 +153,16 @@ class GDrive {
         })
         if (!file) file = files.find(file => file.name === fileStruct.name)
         if (!file) {
+          fileStruct.nonFolderFileCount = 0
           this._createGoogleFile(parentFolderId, fileStruct).then(file => {
             resolve(file)
           }, (err) => {
             reject(err)
           })
         } else {
+          this._fetchGoogleFiles(file.id, false).then(files => {
+            fileStruct.nonFolderFileCount = files.filter(file => file.mimeType !== 'application/vnd.google-apps.folder').length
+          })
           if (rename && file.name !== fileStruct.name) {
             this._updateGoogleFile(file, fileStruct).then(file => {
               resolve(file)
