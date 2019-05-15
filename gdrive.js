@@ -45,8 +45,9 @@ class GDrive {
         if (err) {
           console.error(err)
           reject(err)
+        } else {
+          resolve(auth)
         }
-        else resolve(auth)
       })
     })
   }
