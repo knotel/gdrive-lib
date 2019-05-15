@@ -42,7 +42,10 @@ class GDrive {
       this.auth = auth
       this.drive = google.drive({ version: 'v3', auth })
       auth.authorize(function (err, tokens) {
-        if (err) reject(err)
+        if (err) {
+          console.error(err)
+          reject(err)
+        }
         else resolve(auth)
       })
     })
@@ -54,6 +57,7 @@ class GDrive {
         .then((res) => {
           resolve(res.data)
         }, (err) => {
+          console.error(err)
           reject(err)
         })
     })
@@ -108,6 +112,7 @@ class GDrive {
       }).then(res => {
         resolve(res.data.files)
       }, err => {
+        console.error(err)
         reject(err)
       })
     })
@@ -157,6 +162,7 @@ class GDrive {
           this._createGoogleFile(parentFolderId, fileStruct).then(file => {
             resolve(file)
           }, (err) => {
+            console.error(err)
             reject(err)
           })
         } else {
@@ -167,6 +173,7 @@ class GDrive {
             this._updateGoogleFile(file, fileStruct).then(file => {
               resolve(file)
             }, (err) => {
+              console.error(err)
               reject(err)
             })
           } else {
@@ -175,6 +182,7 @@ class GDrive {
           }
         }
       }, (err) => {
+        console.error(err)
         reject(err)
       })
     })
@@ -188,6 +196,7 @@ class GDrive {
         console.log(`Created ${fileStruct.mimeType}: ${fileStruct.name}`)
         resolve({ ...res.data, name: fileStruct.name, mimeType: fileStruct.mimeType })
       }, err => {
+        console.error(err)
         reject(err)
       })
     })
@@ -206,6 +215,7 @@ class GDrive {
         console.log(`Updated ${fileStruct.mimeType}: ${file.name} -> ${fileStruct.name}`)
         resolve(res.data)
       }, err => {
+        console.error(err)
         reject(err)
       })
     })
